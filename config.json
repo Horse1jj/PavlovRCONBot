@@ -1,0 +1,16 @@
+{
+    "prefix": "d!",
+    "token": "bottoken",
+    "webPort": 80,
+    "hostWeb": true,
+    "server": {
+        "port": "serverPort",
+        "serverIP": "serverIp",
+        "password": "serverPassword"
+    },
+    "extraLogging": false,
+    "loggingChannel": false,
+    "runningChannel": "DM",
+    "allowAllUsers": true,
+    "allowedUsers": []
+}

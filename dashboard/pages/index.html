@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="Pavlov RCON" />
+    <meta name="author" content="Darko Pedragon" />
+    <title>Pavlov RCON</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="/public/js/base.js"></script>
+    <!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"> -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.1.0/css/all.css">
+    <link rel="stylesheet" href="/public/css/lux.css">
+</head>
+
+<body style="background: #0d0d0d;">
+    <div class="container">
+        <div class="jumbotron" style="background: #595959;">
+            <div id="playerTableDIV">
+                <table class="table table-hover" style="margin-bottom:0;" id="playerTable">
+                    <thead>
+                        <tr>
+                            <th scope="col">Player Names</th>
+                            <th scope="col">Kills</th>
+                            <th scope="col">Deaths</th>
+                            <th scope="col">Cash</th>
+                        </tr>
+                    </thead>
+                    <tbody id="playerTableBody">
+                    </tbody>
+                </table>
+                <p style="color:#ffffff;background-color:#0d0d0d;padding:5px;">Click on a player for quick actions!</p>
+            </div>
+            <div>
+                <div id="playerModule" class="modal">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modulePlayerName">PLAYER NAME</h5>
+                                <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            <div class="modal-body" id="playerModuleBody">
+                                
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" style="width:100%;" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- selection -->
+            <div style="background:#ccffdd;min-height:25px;padding:5px;color:#0d0d0d;margin-bottom: 1rem;display:block;">
+                <div class="cmds">
+                    <div class="cmds-items">
+                        <label class="cmds-item-label">
+                            <fieldset class="form-group">
+                                <legend class="cmds-lgn">Basic Cmds</legend>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="optionsRadios" id="cmdGiveItem" value="GiveItem">
+                                        GiveItem
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="optionsRadios" id="cmdKill" value="Kill">
+                                        Kill
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="optionsRadios" id="cmdKick" value="Kick">
+                                        Kick
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="optionsRadios" id="cmdRotateMap" value="RotateMap">
+                                        RotateMap
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="optionsRadios" id="cmdGiveCash" value="GiveCash">
+                                        GiveCash
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="optionsRadios" id="cmdResetSND" value="ResetSND">
+                                        ResetSND
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <label class="form-check-label">
+                                        <input type="radio" class="form-check-input" name="optionsRadios" id="cmdSetPlayerSkin" value="SetPlayerSkin">
+                                        SetPlayerSkin
+                                    </label>
+                                </div>
+                            </fieldset>
+                            <fieldset id="secondParam" class="form-group" style="padding-left: 10px;min-width:120px;min-height:170px;">
+                            </fieldset>
+                            <fieldset id="thirdParam" class="form-group" style="padding-left: 10px;min-width:120px;min-height:170px;">
+                            </fieldset>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- selection -->
+            <button type="button" class="btn btn-warning" id="runBasicCmd" style="margin-bottom:10px;width:100%;">Run Selected Command</button>
+            <div>
+                <p id="outputText" style="overflow-y: auto;overflow-x: hidden;white-space: pre-wrap;color: #000000;background: #999999;width: 100%;height: 250px;">Output will spit out here...</p>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <button style="height: 45px;" id="subit" class="btn btn-outline-secondary" type="button">Run Cmd</button>
+                    </div>
+                    <input type="text" style="height: 45px;" id="customRun" class="form-control" placeholder="RCON Command to run...">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -60,7 +60,7 @@ See `/_examples/example rcon command.js`.
 There currently isn't any measure to limit who can access the dashboard. I'll be adding a Discord login to verify if a user can run command once I make the dashboard actually look somewhat decent. So with this in mind, **DO NOT** share your projects website link publicly. Anyone can run any RCON command on your server, like kicking or banning users. Or, even overloading the server by spawning an insane amount of items/changing maps constantly.  
 
 ## Default Config
-It is highly recommended you change `allowedUsers` to `false` and enter your own user ID, or changing `runningChannel` to a channel ID only the bot, you and trusted users can see.  
+It is highly recommended you change `allowAllUsers` to `false` and enter your own user ID, or changing `runningChannel` to a channel ID only the bot, you and trusted users can see.  
 
 ## Limiting Commands
 Custom commands can be limited to permission levels or roles, but the base commands cannot (yet). This means anyone can could run `Ban YourName` and ban you from your own server. Of course you could just remove the ban or delete the log file for bans, but you should avoid giving access to the bot to people who aren't a moderator or trusted friend regardless.

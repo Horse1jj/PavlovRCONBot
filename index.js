@@ -76,8 +76,8 @@ class RCON extends Discord.Client {
                             await this.wait(1200)
                             socket.write(command)
                             socket.once('data', async (data) => {
-                                if (user) this.RCONLog(data.toString(), { cmdName: command.split(" ")[0], user: { name: user.username, avatar: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` } });
-                                else this.RCONLog(data.toString())
+                                if (user) this.RCONLog(data.toString(), { cmd: command, cmdName: command.split(" ")[0], user: { name: user.username, avatar: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` } });
+                                else this.RCONLog(data.toString(), { cmd: command })
                                 resolve(data.toString())
                             })
                         } else {
@@ -87,24 +87,21 @@ class RCON extends Discord.Client {
                                     res.edit({ name: `Players: ${d.PlayerList.length}/${res.name.split("/")[1]}` }).catch(console.log)
                                 }).catch(console.log)
                             }
-                            if (user) this.RCONLog(data.toString(), { cmdName: command.split(" ")[0], user: { name: user.username, avatar: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` } });
-                            else this.RCONLog(data.toString())
+                            if (user) this.RCONLog(data.toString(), { cmd: command, cmdName: command.split(" ")[0], user: { name: user.username, avatar: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` } });
+                            else this.RCONLog(data.toString(), { cmd: command })
                             resolve(data.toString())
                         }
                     } catch (e) {
                         if (e.toString().includes('Unexpected end of JSON') || e.toString().includes('Unexpected token')) {
                             this.sentData = true
                             console.log(data)
-                            let buffer = Buffer.from(data)
-                            let attachment = new Discord.MessageAttachment(buffer, 'data.txt')
-                            let d = await this.users.fetch("693300262672138290")
-                            d.send(attachment)
                         }
                         console.log("RCONHANDLE", e)
                     }
 
                 });
             } catch (e) {
+                console.log(e)
                 reject(e)
             }
         })
@@ -144,8 +141,21 @@ class RCON extends Discord.Client {
                     if (this.VALID_ITEMS.length == 0) {
                         if (this.VALID_CMDS.length == 0) await this.wait(1000)
                         this.RCONCommandHandler(socket, 'ItemList').then(r => {
-                            r = JSON.parse(r)
-                            this.VALID_ITEMS = r.ItemList
+                            try {
+                                let dt = JSON.parse(r)
+                                this.VALID_ITEMS = dt.ItemList
+                            } catch (e) {
+                                if (r.trim().endsWith("}")) {
+                                    if (r.ItemList) this.VALID_ITEMS = r.ItemList
+                                    else {
+                                        let dt = JSON.parse(JSON.stringify(r))
+                                        this.VALID_ITEMS = dt.ItemList
+                                    }
+                                } else {
+                                    let dt = JSON.parse(r + "]}")
+                                    this.VALID_ITEMS = dt.ItemList
+                                }
+                            }
                         })
                     }
                     if (!this.intervals.playerRefreshInter || this.intervals.playerRefreshInter._destroyed) this.intervals.playerRefreshInter = setInterval(async () => {
@@ -228,8 +238,8 @@ class RCON extends Discord.Client {
                         .setColor(options.color ? options.color : "GREEN")
                         .setTitle('RCON Log');
                     // this is kind of sloppy butttttt
-                    embed.setDescription(`\`\`\`\n${message}\n\`\`\``)
-                    if (options.cmd) options.cmd.forEach(c => { Object.entries(c).forEach(([k, v]) => { embed.addField(k, v, options.inline) }) })
+                    embed.setDescription(`\`\`\`json\n${message}\n\`\`\``)
+                    if (options.cmd) embed.addField('Command', options.cmd)
                     if (options.user && options.cmdName) embed.setFooter(`${options.cmdName} ran by ${options.user.name}`, options.user.avatar)
                     c.send({ embed: embed })
                     res(false)

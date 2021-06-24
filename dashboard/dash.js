@@ -35,6 +35,10 @@ module.exports = (client) => {
         })
     })
 
+    app.post('/valid-items', (req, res, next) => {
+        res.send({items: client.VALID_ITEMS})
+    })
+
     app.get('*', (req, res, next) => {
         res.send('OwO, an error');
     });

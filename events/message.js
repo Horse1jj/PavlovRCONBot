@@ -27,7 +27,7 @@ module.exports = async (client, message) => {
                     res = JSON.parse(res)
                     let entries = Object.entries(res)
                     if (entries.length > 25) {
-                        message.reply(`\`\`\`\n${JSON.stringify(res, null, 2)}\n\`\`\``)
+                        message.reply(`\`\`\`json\n${JSON.stringify(res, null, 2)}\n\`\`\``)
                     } else {
                         const embed = new Discord.MessageEmbed()
                             .setTitle('Command Retrun Data')

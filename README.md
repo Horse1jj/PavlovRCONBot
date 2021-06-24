@@ -15,7 +15,7 @@ If you have an error with the code in the repo, you can open an issue and I'll l
 The RCON bot automatically connects to your Pavlov server and runs RCON commands sent to it (by channel or direct messages, specified in the config). You can also:
 * Create custom commands (loaded from the `/commands` folder)
 * Use the built in website to run commands and view online players (preview below)
-![DashboardPreview](https://i.imgur.com/RQ5MmPC.png)
+![DashboardPreview](https://i.imgur.com/TDBAdlF.png)
 
 # Config
 `config.json` (default):

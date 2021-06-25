@@ -1,7 +1,7 @@
 {
     "prefix": "d!",
-    "token": "bottoken",
-    "webPort": 80,
+    "token": "token",
+    "webPort": 8000,
     "hostWeb": true,
     "server": {
         "port": "serverPort",
@@ -12,5 +12,19 @@
     "loggingChannel": false,
     "runningChannel": "DM",
     "allowAllUsers": true,
-    "allowedUsers": []
+    "allowedUsers": [],
+    "oauth2": {
+        "redirect_uri": "http://localhost:8000/verify/callback",
+        "client_id": "Discord Application Client ID",
+        "secret": "Discord Application Client (OAuth)",
+        "scopes": ["identify"]
+    },
+    "session": {
+        "secret": "sessionSecret",
+        "cookie": {
+            "maxAge": 86400000
+        },
+        "resave": true,
+        "saveUninitialized": false
+    }
 }

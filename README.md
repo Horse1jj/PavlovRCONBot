@@ -8,8 +8,11 @@ If you have an error with the code in the repo, you can open an issue and I'll l
 * Download the project as a `.zip` or clone it using `git clone https://github.com/DarkoPendragon/PavlovRCONBot`
 * Run `npm i` from your console in the bots working directory (main folder with `package.json` in it)
 * If you haven't, create a bot application with Discord here: https://discord.com/developers/applications
+* If you plan on using the dashboard, you'll need to setup a callback url to `https://<YOUR_WEBSITE>/verify/callback`
+* Set `redirect_uri`, `client_id`, and `secret` in the config with the info from your Discord Application
 * Configure `config.json` with your bot token and other settings
 * Launch the bot by running `node index.js` or `npm start` in your console
+* See `Sidenotes/Warnings` at the bottom of this page for more info
 
 # Features
 The RCON bot automatically connects to your Pavlov server and runs RCON commands sent to it (by channel or direct messages, specified in the config). You can also:
@@ -17,26 +20,6 @@ The RCON bot automatically connects to your Pavlov server and runs RCON commands
 * Use the built in website to run commands and view online players (preview below)
 ![DashboardPreview](https://i.imgur.com/TDBAdlF.png)
 
-# Config
-`config.json` (default):
-```json
-{
-    "prefix": "d!",
-    "token": "bottoken",
-    "webPort": 80,
-    "hostWeb": true,
-    "server": {
-        "port": "serverPort",
-        "serverIP": "serverIp",
-        "password": "serverPassword"
-    },
-    "extraLogging": false,
-    "loggingChannel": false,
-    "runningChannel": "DM",
-    "allowAllUsers": true,
-    "allowedUsers": []
-}
-```
 | Option | Type | Description |  
 | --- | --- | --- |
 | prefix | String | Prefix to run normal commands with (e.g `d!help`) |
@@ -50,14 +33,58 @@ The RCON bot automatically connects to your Pavlov server and runs RCON commands
 | loggingChanel | String/Boolean | If set to a String, the bot will log RCON commands ran in this Discord channel (this is a channel ID) |
 | runningChannel | String | Can either be a Discord channel ID or "DM," id set to DM the bot listens for commands in it's direct messages |
 | allowAllUsers | Boolean | Whether to allow anyone to run RCON commands (heavily advised against when using DM's for commands) |
-| allowedUsers | Array | An Array of Discord User ID's to allow when `allowAllUsers` is `false` |  
+| allowedUsers | Array | An Array of Discord User ID's to allow when `allowAllUsers` is `false` |
+| session.secret | String | Secret used for the express session |
+| oauth2.redirect_uri | String | Callback URL set in your applications callback section |
+| oauth2.client_id | String | ID of your Discord Application |
+| oauth2.secret | String | Secret of your Discord Application |  
+# Config
+`config.json` (default):
+```json
+{
+    "prefix": "d!",
+    "token": "token",
+    "webPort": 8000,
+    "hostWeb": true,
+    "server": {
+        "port": "serverPort",
+        "serverIP": "serverIp",
+        "password": "serverPassword"
+    },
+    "extraLogging": false,
+    "loggingChannel": false,
+    "runningChannel": "DM",
+    "allowAllUsers": true,
+    "allowedUsers": [],
+    "oauth2": {
+        "redirect_uri": "http://localhost:8000/verify/callback",
+        "client_id": "Discord Application Client ID",
+        "secret": "Discord Application Client (OAuth)",
+        "scopes": ["identify"]
+    },
+    "session": {
+        "secret": "sessionSecret",
+        "cookie": {
+            "maxAge": 86400000
+        },
+        "resave": true,
+        "saveUninitialized": false
+    }
+}
+```
 
 # Custom Commands
 See `/_examples/example rcon command.js`.
 
 # Sidenotes/Warnings
-## The Dashboard
-There currently isn't any measure to limit who can access the dashboard. I'll be adding a Discord login to verify if a user can run command once I make the dashboard actually look somewhat decent. So with this in mind, **DO NOT** share your projects website link publicly. Anyone can run any RCON command on your server, like kicking or banning users. Or, even overloading the server by spawning an insane amount of items/changing maps constantly.  
+## Allowing user dashboard access
+To use the dashboard you **MUST** specify everyone you want to use it in `allowedUsers`. You can either add names or user ID's. An example of setting it for myself and two of my friends would look like:  
+```json
+{
+    "allowedUsers": ["Darko Pendragon","315237909831614464","JimPlatimum"]
+}
+```
+This will allow anyone with the usernames `Darko Pendragon` and `JimPlatimum` to use the commands, as well as a user with an ID of `315237909831614464`. Do also note that if someone changes their username you'll have to update this list with their name if you do not use their ID instead, thus using someones ID (that never changes) is suggested.
 
 ## Default Config
 It is highly recommended you change `allowAllUsers` to `false` and enter your own user ID, or changing `runningChannel` to a channel ID only the bot, you and trusted users can see.  

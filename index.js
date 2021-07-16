@@ -46,17 +46,17 @@ class RCON extends Discord.Client {
                             inter = inter + 1
                             setTimeout(() => { next() }, 200)
                         } else {
-                            cli.intervals.QUEUE_INTER = setInterval(() => cli.RCON_INTER_FUNCTION(cli), 500)
+                            cli.intervals.QUEUE_INTER = setInterval(() => cli.RCON_INTER_FUNCTION(cli), cli.conf.intervalSpeed)
                         }
                     }
                     next()
                 } else {
                     cli.RCONCommandHandler(cli._socket, `${THIS_ORDER.cmd} ${THIS_ORDER.userID} ${THIS_ORDER.params[0]}`, [], THIS_ORDER.ranBy).catch(res => console.log('Problem running queue order: ' + res.stack ? res.stack : res))
-                    cli.intervals.QUEUE_INTER = setInterval(() => cli.RCON_INTER_FUNCTION(cli), 500)
+                    cli.intervals.QUEUE_INTER = setInterval(() => cli.RCON_INTER_FUNCTION(cli), cli.conf.intervalSpeed)
                 }
             } else {
                 cli.RCONCommandHandler(cli._socket, `${THIS_ORDER.cmd} ${THIS_ORDER.userID}`, [], THIS_ORDER.ranBy).catch(res => console.log('Problem running queue order: ' + res.stack ? res.stack : res))
-                cli.intervals.QUEUE_INTER = setInterval(() => cli.RCON_INTER_FUNCTION(cli), 500)
+                cli.intervals.QUEUE_INTER = setInterval(() => cli.RCON_INTER_FUNCTION(cli), cli.conf.intervalSpeed)
             }
         }
     }
@@ -131,8 +131,8 @@ class RCON extends Discord.Client {
                     socket.emit("authServer", true)
                     console.log('Logged in!')
                     resolve(socket)
-                    if (!this.intervals.QUEUE_INTER) this.intervals.QUEUE_INTER = setInterval(() => this.RCON_INTER_FUNCTION(CLI), 500);
-                    if (this.VALID_CMDS.length == 0) this.RCONCommandHandler(socket, `Help`).then(res => {
+                    if (!this.intervals.QUEUE_INTER) this.intervals.QUEUE_INTER = setInterval(() => this.RCON_INTER_FUNCTION(CLI), CLI.conf.intervalSpeed);
+                    this.RCONCommandHandler(socket, `Help`).then(res => {
                         res = JSON.parse(res)
                         let mds = res.Help.split(", ").map(c => c.split(" ")[0])
                         this.VALID_CMDS = mds;

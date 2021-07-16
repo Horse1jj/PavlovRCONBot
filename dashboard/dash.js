@@ -12,7 +12,7 @@ module.exports = (client) => {
     }));
     app.use("/public", express.static(path.join(__dirname, 'public')));
     app.use(require('express-session')(client.conf.session))
-
+    const rejectPage = `<!DOCTYPE html><head></head><body><div style="height:100vh;width:100vw;background-image:url('https://www.reactiongifs.com/r/hhn.gif');background-size:cover;background-position:center;"></div></body>`;
     function checkAuth(session) {
         return new Promise(async (resolve, reject) => {
             if (!session || !session.bearer_token) reject(false)
@@ -27,7 +27,7 @@ module.exports = (client) => {
         if (!req.session.bearer_token) return res.redirect('/verify')
         let user = await checkAuth(req.session)
         if (!user.username) return res.redirect('/verify')
-        if (!client.conf.allowedUsers.filter(p => p == user.id || p == user.username)[0]) res.send(`<h1 style="padding:20px;background-color:#343a40;color:#ffffff;margin:10px;">Failed to auth, you likely can't access this webpage.</h1>`)
+        if (!client.conf.allowedUsers.filter(p => p == user.id || p == user.username)[0]) res.send(rejectPage)
         else res.sendFile(__dirname + "/pages/index.html")
     })
 
@@ -53,6 +53,20 @@ module.exports = (client) => {
         res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${client.conf.oauth2.client_id}&redirect_uri=${encodeURIComponent(client.conf.oauth2.redirect_uri)}&response_type=code&scope=${encodeURIComponent(client.conf.oauth2.scopes.join(" "))}`)
     })
 
+    app.post('/getdata', (req, res, next) => {
+        let query = req.body.query;
+        if (!query) return res.send({status: "error", error: "no query passed"})
+        let data = req.session[query]
+        if (!data) return res.send({status: "failed", reason: "no matching data found"})
+        res.send({status: "success", data: data})
+    })
+
+    app.post('/setdata', (req, res, next) => {
+        if (!req.body.prop || !req.body.value) return res.send({status: "error", error: "one or more params not passed"})
+        req.session[req.body.prop] = req.body.value
+        res.send({status: "success", data: req.session[req.body.prop]})
+    })
+
     app.post('/queue-command', (req, res, next) => {
         checkAuth(req.session).then(user => {
             let opts = req.body
@@ -61,6 +75,18 @@ module.exports = (client) => {
         }).catch(() => {
             res.redirect('/verify');
         })
+    })
+
+    app.get('/setmap', async (req, res, next) => {
+        let q = req.query
+        if (!q || !q.user || !q.mapID || !q.mapMode) return res.send('Invalid data passed '+JSON.stringify(req.query))
+        let cmd = `SwitchMap ${q.mapID} ${q.mapMode}`
+        let user = await client.users.fetch(q.user, true, true)
+        if (!user || !user.id) user = q.user;
+        if (!client.conf.allowedUsers.includes(q.user)) return res.send(rejectPage)
+        client.RCONCommandHandler(client._socket, cmd, [], user).then(r => {
+            res.redirect('/')
+        }).catch(e => res.send(e.toString ? e.toString() : e))
     })
 
     app.post('/command', (req, res, next) => {

@@ -10273,3 +10273,25 @@ th {
         transform: scale(1.4);
     }
 }
+
+.dbtn {
+    min-width: 350px;
+    margin: 2px;
+}
+
+@media screen and (min-width: 1200px) {
+    .container-fluid {
+        max-width: 1140px;
+        background-color: #1a1a1a;
+    }
+    .jumbotron-fluid {
+        padding: 1rem 1rem
+    }
+}
+
+.mapItem {
+    min-width: 270px;
+    max-width: 270px;
+    border:5px ridge #4BBF73;
+    margin:  0.2rem;
+}

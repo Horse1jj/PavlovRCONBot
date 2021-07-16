@@ -13,14 +13,15 @@
     "runningChannel": "DM",
     "allowAllUsers": true,
     "allowedUsers": [],
+    "intervalSpeed": 300,
     "oauth2": {
         "redirect_uri": "http://localhost:8000/verify/callback",
-        "client_id": "Discord Application Client ID",
-        "secret": "Discord Application Client (OAuth)",
+        "client_id": "applicationID",
+        "secret": "applicationOatuhSecret",
         "scopes": ["identify"]
     },
     "session": {
-        "secret": "sessionSecret",
+        "secret": "secret123",
         "cookie": {
             "maxAge": 86400000
         },

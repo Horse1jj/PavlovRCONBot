@@ -41,18 +41,19 @@
                 </ul>
                 <form class="d-flex">
                     <button type="button" id="refreshList" class="btn btn-success">Refresh List</button>
+                    <button style="margin-left:3px;" type="button" id="setSpeed" class="btn btn-success">Set Speed</button>
                 </form>
             </div>
         </div>
     </nav>
-    <div class="container">
-        <div class="jumbotron" style="background: #1a1a1a;">
-            <div id="playerTableDIV">
+    <div class="container-fluid">
+        <div class="jumbotron-fluid" style="background: 0;">
+            <div id="playerTableDIV" class="table-responsive">
                 <table class="table table-hover" style="margin-bottom:0;" id="playerTable">
                     <thead>
                         <tr>
                             <th class="text-center"><input id="selectAll" type="checkbox"></th>
-                            <th scope="col" colspan="2">Player Names</th>
+                            <th scope="col">Player Names</th>
                             <th scope="col">Kills</th>
                             <th scope="col">Deaths</th>
                             <th scope="col">Cash</th>
@@ -63,10 +64,10 @@
                 </table>
                 <p style="color:#ffffff;position: relative;background-color:#0d0d0d;padding:5px;margin-bottom: 0px;">Click on a player for quick actions!</p>
                 <p id="currentCmds" style="color:#ffffff;position: relative;background-color:#0d0d0d;padding:5px;margin-bottom: 10px;">Current selected users:</p>
-                <div class="cmd-wrapper-3">
-                    <button type="button" id="SetPlayerSkin" class="btn btn-success cmd-wrapped">Set Player Skin</button>
-                    <button type="button" id="Kill" class="btn btn-success cmd-wrapped">Kill</button>
-                    <button type="button" id="GiveItem" class="btn btn-success cmd-wrapped">Give Item(s)</button>
+                <div class="d-flex flex-wrap justify-content-center">
+                    <button type="button" id="SetPlayerSkin" class="btn btn-success cmd-wrapped dbtn">Set Player Skin</button>
+                    <button type="button" id="Kill" class="btn btn-success cmd-wrapped dbtn">Kill</button>
+                    <button type="button" id="GiveItem" class="btn btn-success cmd-wrapped dbtn">Give Item(s)</button>
                 </div>
             </div>
             <div>

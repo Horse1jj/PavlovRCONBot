@@ -3,6 +3,11 @@ $(document).ready(() => {
     var players = []
     var validItems = []
     var currentUsers = []
+    var speed = 500;
+    $.post('/getdata', { query: "speed" }, res => {
+        if (res.status == "success") speed = parseInt(res.data)
+        else $.post('/setdata', { prop: "speed", value: "500" })
+    })
 
     function getPlayer(id) {
         return new Promise(async (resolve, rej) => {
@@ -20,6 +25,10 @@ $(document).ready(() => {
     function fetchUsers() {
         currentUsers = []
         $('#currentCmds').html(`Current selected users:`)
+        $('#selectAll').prop('checked', false)
+        $("#playerTableBody").find('input[type=checkbox]').each((i, e) => {
+            $(e).prop('checked', false)
+        })
         $.post("/command", { cmd: "RefreshList" }, async (res, status) => {
             if (!res.passed) return console.log(res.res)
             setTimeout(() => {
@@ -109,6 +118,14 @@ $(document).ready(() => {
             inputLog(res)
         })
     })
+    $(document).on('click', "#runSpeed", async (event) => {
+        let target = $('#runSpeedInt')
+        speed = parseInt(target.prop('value'))
+        $.post('/setdata', { prop: "speed", value: parseInt(target.prop('value')) })
+        $('#inputModule').modal('hide')
+        if (speed<=250) alert(`Lower speeds (<250) may cause inccorect responses from the server! Speed set to ${speed}ms.`)
+        else alert(`Speed set to ${speed}!`)
+    })
 
     $(document).on('change', '.playerSelectCheck', (event) => {
         updateCommandSel()
@@ -125,10 +142,16 @@ $(document).ready(() => {
         fetchUsers()
     })
 
+    $('#setSpeed').on('click', async () => {
+        $('#inputModuleName').html("Set Speed")
+        $('#inputModuleBody').html(`<legend class="cmds-lgn">Set Speed</legend><p>Sets how fast/slow functions and intervals run, in milliseconds. Setting this below 350 may cause invalid responses for some features.</p><br><input type="text" style="width:100%;height:45px;" id="runSpeedInt" placeholder="${speed}"><button type="button" id="runSpeed" style="width:100%;" class="btn btn-primary">Set Speed</button>`)
+        $('#inputModule').modal('show');
+    })
+
     $('#SetPlayerSkin').on('click', async () => {
         if (currentUsers.length == 0) {
             $('#SetPlayerSkin').addClass("btn-danger disabled").removeClass("btn-success")
-            setTimeout(() => { $('#SetPlayerSkin').addClass("btn-success").removeClass("btn-danger disabled") }, 1500)
+            setTimeout(() => { $('#SetPlayerSkin').addClass("btn-success").removeClass("btn-danger disabled") }, 2000)
             return;
         }
 
@@ -137,15 +160,16 @@ $(document).ready(() => {
         $('#inputModule').modal('show');
 
         $(document).one('click', '#refreshListSubmit', (event) => {
+            const users = currentUsers;
             let skin = $('#skinList').val()
             $('#inputModule').modal('hide');
             let i = 0;
             async function doNext() {
-                if (i < currentUsers.length) {
-                    $.post("/command", { cmd: `SetPlayerSkin ${currentUsers[i].id} ${skin}` }, (res, status) => {
+                if (i < users.length) {
+                    $.post("/command", { cmd: `SetPlayerSkin ${users[i].id} ${skin}` }, (res, status) => {
                         inputLog(res)
                         i++;
-                        setTimeout(() => { doNext() }, 800)
+                        setTimeout(() => { doNext() }, speed)
                     })
                 }
             }
@@ -155,17 +179,18 @@ $(document).ready(() => {
     $('#Kill').on('click', async () => {
         if (currentUsers.length == 0) {
             $('#Kill').addClass("btn-danger disabled").removeClass("btn-success")
-            setTimeout(() => { $('#Kill').addClass("btn-success").removeClass("btn-danger disabled") }, 1500)
+            setTimeout(() => { $('#Kill').addClass("btn-success").removeClass("btn-danger disabled") }, 2000)
             return;
         }
 
-        let i = 0;
+        const users = currentUsers
+        let i = 0
         async function doNext() {
-            if (i < currentUsers.length) {
-                $.post("/command", { cmd: `Kill ${currentUsers[i].id}` }, (res, status) => {
+            if (i < users.length) {
+                $.post("/command", { cmd: `Kill ${users[i].id}` }, (res, status) => {
                     inputLog(res)
                     i++;
-                    setTimeout(() => { doNext() }, 800)
+                    setTimeout(() => { doNext() }, speed)
                 })
             }
         }
@@ -174,7 +199,7 @@ $(document).ready(() => {
     $('#GiveItem').on('click', async () => {
         if (currentUsers.length == 0) {
             $('#GiveItem').addClass("btn-danger disabled").removeClass("btn-success")
-            setTimeout(() => { $('#GiveItem').addClass("btn-success").removeClass("btn-danger disabled") }, 1500)
+            setTimeout(() => { $('#GiveItem').addClass("btn-success").removeClass("btn-danger disabled") }, 2000)
             return;
         }
 
@@ -186,16 +211,17 @@ $(document).ready(() => {
         $('#inputModule').modal('show');
 
         $(document).one('click', '#refreshListSubmit', (event) => {
+            const users = currentUsers
             let item = $('#itemList').val()
             $('#inputModule').modal('hide');
             if (item.length > 1) {
                 let i = 0;
                 async function doNext() {
-                    if (i < currentUsers.length) {
-                        $.post("/queue-command", { cmd: "GiveItem", user: currentUsers[i].id, items: item }, (res, status) => {
+                    if (i < users.length) {
+                        $.post("/queue-command", { cmd: "GiveItem", user: users[i].id, items: item }, (res, status) => {
                             inputLog(res)
                             i++;
-                            setTimeout(() => { doNext() }, 800)
+                            setTimeout(() => { doNext() }, speed)
                         })
                     }
                 }
@@ -203,11 +229,11 @@ $(document).ready(() => {
             } else {
                 let i = 0;
                 async function doNext() {
-                    if (i < currentUsers.length) {
-                        $.post("/command", { cmd: `GiveItem ${currentUsers[i].id} ${item[0]}` }, (res, status) => {
+                    if (i < users.length) {
+                        $.post("/command", { cmd: `GiveItem ${users[i].id} ${item[0]}` }, (res, status) => {
                             inputLog(res)
                             i++;
-                            setTimeout(() => { doNext() }, 800)
+                            setTimeout(() => { doNext() }, speed)
                         })
                     }
                 }
@@ -231,12 +257,13 @@ $(document).ready(() => {
     $('#helpText').on('click', (event) => {
         event.preventDefault();
         $('#fullModuleHead').html("Help Text")
-        $('#fullModuleBody').html(`Welcome to your Pavlov RCON pannel. Here you can run varouis basic commands, or issue custom commands (at the bottom of the page). To begin:<br><br>Selecting a checkbox ( <input type="checkbox"> ) on the left side of a players name selects them to run a batch command with at the bottom of the player list. These command buttons are: <button type="button" class="btn btn-success btn-smlr">Set Player Skin</button> <button type="button" class="btn btn-success btn-smlr">Kill</button> and <button type="button" class="btn btn-success btn-smlr">Give Item(s)</button>.<br><br>Clicking the <button type="button" class="btn btn-success btn-smlr">Refresh List</button> on the top right will get all the current players and their data (kills, cash, etc.) again, then re-create the play table.<br><br>You may also click on a players name to open a list of commands that will run for that player (Kill, Kick, Give 10k, Ban, etc.). If you need any help feel free to join the Discord server (which is under Useful Links).`)
+        $('#fullModuleBody').html(`Welcome to your Pavlov RCON pannel. Here you can run various basic commands, or issue custom commands (at the bottom of the page). To begin:<br><br>Selecting a checkbox ( <input type="checkbox"> ) on the left side of a players name selects them to run a batch command with at the bottom of the player list. These command buttons are: <button type="button" class="btn btn-success btn-smlr">Set Player Skin</button> <button type="button" class="btn btn-success btn-smlr">Kill</button> and <button type="button" class="btn btn-success btn-smlr">Give Item(s)</button>.<br><br>Clicking the <button type="button" class="btn btn-success btn-smlr">Refresh List</button> on the top right will get all the current players and their data (kills, cash, etc.) again, then re-create the play table.<br><br>You may also click on a players name to open a list of commands that will run for that player (Kill, Kick, Give 10k, Ban, etc.). If you need any help feel free to join the Discord server (which is under Useful Links).`)
         $('#fullModule').modal('show');
     })
 
     $('#subit').on('click', (event) => {
         let cmd = $('#customRun').val()
+        $('#customRun').val("")
         $.post("/command", { cmd: cmd }, (res, status) => {
             inputLog(res)
         })

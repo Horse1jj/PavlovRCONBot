@@ -26,6 +26,12 @@
                     <li class="nav-item">
                         <a class="nav-link" href="#" id="serverInfo">Server Info</a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">MapList</a>
+                        <div class="dropdown-menu" id="mapList">
+                            <a class="dropdown-item switchmap" value="SwitchMap ${MAPLABLE}" href="#">MAPNAME MODE</a>
+                        </div>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" id="helpText">Help Text</a>
                     </li>
@@ -68,6 +74,7 @@
                     <button type="button" id="SetPlayerSkin" class="btn btn-success cmd-wrapped dbtn">Set Player Skin</button>
                     <button type="button" id="Kill" class="btn btn-success cmd-wrapped dbtn">Kill</button>
                     <button type="button" id="GiveItem" class="btn btn-success cmd-wrapped dbtn">Give Item(s)</button>
+                    <button type="button" id="GiveLoadout" class="btn btn-success cmd-wrapped dbtn">Give Loadout</button>
                 </div>
             </div>
             <div>

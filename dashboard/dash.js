@@ -12,7 +12,8 @@ module.exports = (client) => {
     }));
     app.use("/public", express.static(path.join(__dirname, 'public')));
     app.use(require('express-session')(client.conf.session))
-    const rejectPage = `<!DOCTYPE html><head></head><body><div style="height:100vh;width:100vw;background-image:url('https://www.reactiongifs.com/r/hhn.gif');background-size:cover;background-position:center;"></div></body>`;
+    const rejectPage = `<!DOCTYPE html><head></head><body style="margin:0;overflow:hidden;"><div style="background:#1a1a1a;height:100vh;width:100vw;text-align:center;"><img style="max-width:100%;height:auto;padding:5px;" src="https://i.imgur.com/7cBqTdv.png" alt="Cinque Terre" width="1000" height="300"></div></body>`;
+
     function checkAuth(session) {
         return new Promise(async (resolve, reject) => {
             if (!session || !session.bearer_token) reject(false)
@@ -26,9 +27,14 @@ module.exports = (client) => {
     app.get('/', async (req, res, next) => {
         if (!req.session.bearer_token) return res.redirect('/verify')
         let user = await checkAuth(req.session)
-        if (!user.username) return res.redirect('/verify')
-        if (!client.conf.allowedUsers.filter(p => p == user.id || p == user.username)[0]) res.send(rejectPage)
-        else res.sendFile(__dirname + "/pages/index.html")
+        if (!user || !user.username) return res.redirect('/verify')
+        if (!client.conf.allowedUsers.filter(p => p == user.id || p == user.username)[0]) {
+            client.userLoggedIn(user, true)
+            res.send(rejectPage)
+        } else {
+            client.userLoggedIn(user)
+            res.sendFile(__dirname + "/pages/index.html")
+        }
     })
 
     app.get('/verify/callback', async (req, res, next) => {
@@ -49,22 +55,26 @@ module.exports = (client) => {
         res.redirect('/');
     })
 
+    app.post('/get-maps', (req, res) => {
+        res.send(client.MAP_LIST)
+    })
+
     app.get('/verify', (req, res, next) => {
         res.redirect(`https://discord.com/api/oauth2/authorize?client_id=${client.conf.oauth2.client_id}&redirect_uri=${encodeURIComponent(client.conf.oauth2.redirect_uri)}&response_type=code&scope=${encodeURIComponent(client.conf.oauth2.scopes.join(" "))}`)
     })
 
     app.post('/getdata', (req, res, next) => {
         let query = req.body.query;
-        if (!query) return res.send({status: "error", error: "no query passed"})
+        if (!query) return res.send({ status: "error", error: "no query passed" })
         let data = req.session[query]
-        if (!data) return res.send({status: "failed", reason: "no matching data found"})
-        res.send({status: "success", data: data})
+        if (!data) return res.send({ status: "failed", reason: "no matching data found" })
+        res.send({ status: "success", data: data })
     })
 
     app.post('/setdata', (req, res, next) => {
-        if (!req.body.prop || !req.body.value) return res.send({status: "error", error: "one or more params not passed"})
+        if (!req.body.prop || !req.body.value) return res.send({ status: "error", error: "one or more params not passed" })
         req.session[req.body.prop] = req.body.value
-        res.send({status: "success", data: req.session[req.body.prop]})
+        res.send({ status: "success", data: req.session[req.body.prop] })
     })
 
     app.post('/queue-command', (req, res, next) => {
@@ -79,7 +89,7 @@ module.exports = (client) => {
 
     app.get('/setmap', async (req, res, next) => {
         let q = req.query
-        if (!q || !q.user || !q.mapID || !q.mapMode) return res.send('Invalid data passed '+JSON.stringify(req.query))
+        if (!q || !q.user || !q.mapID || !q.mapMode) return res.send('Invalid data passed ' + JSON.stringify(req.query))
         let cmd = `SwitchMap ${q.mapID} ${q.mapMode}`
         let user = await client.users.fetch(q.user, true, true)
         if (!user || !user.id) user = q.user;
@@ -114,11 +124,11 @@ module.exports = (client) => {
     })
 
     app.get('*', (req, res, next) => {
-        res.send('OwO, an error');
+        res.send(rejectPage);
     });
 
     app.post('*', (req, res, next) => {
-        res.send('OwO, an error');
+        res.send(rejectPage);
     });
 
     var server_port = process.env.PORT || client.conf.webPort;

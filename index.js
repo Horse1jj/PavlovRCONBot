@@ -4,21 +4,43 @@ const path = require('path')
 const net = require('net')
 class RCON extends Discord.Client {
     constructor(options) {
-        super(options);
-        this._socket = null;
-        this.isAuth = false;
-        this.isWaitingInput = new Set();
-        this.queue = [];
-        this.intervals = {};
-        this.VALID_CMDS = [];
-        this.VALID_ITEMS = [];
-        this.commands = new Discord.Collection();
-        this.aliases = new Discord.Collection();
-        this.wait = require("util").promisify(setTimeout);
+        super(options)
+        this._socket = null
+        this.isAuth = false
+        this.isWaitingInput = new Set()
+        this.queue = []
+        this.intervals = {}
+        this.VALID_CMDS = []
+        this.VALID_ITEMS = []
+        this.MAP_LIST = []
+        this.commands = new Discord.Collection()
+        this.aliases = new Discord.Collection()
+        this.wait = require("util").promisify(setTimeout)
         this.conf = require('./config.json')
     }
 
+    // this is used when a user logs into the website
+    userLoggedIn(user, invalid) {
+        // you can do whatever with this
+        // a basic user object is passed for 'user' and invalid is 'true' if they failed to auth
+        // the user object passed:
+        // {
+        //     "id": "Discord User ID",
+        //     "username": "Discord Account Username",
+        //     "avatar": "avatarFileHash",
+        //     "discriminator": "Discord Account Discriminator",
+        //     "public_flags": 0,
+        //     "flags": 0,
+        //     "banner": null,
+        //     "banner_color": null,
+        //     "accent_color": null,
+        //     "locale": "en-US",
+        //     "mfa_enabled": true
+        // }
+    }
+
     RCON_INTER_FUNCTION(cli) {
+        if (!cli || !cli.rcon) return false
         if (cli && cli.queue) {
             if (cli.queue.length > 0) {
                 cli.RCON_READ_ORDER()
@@ -132,7 +154,7 @@ class RCON extends Discord.Client {
                     console.log('Logged in!')
                     resolve(socket)
                     if (!this.intervals.QUEUE_INTER) this.intervals.QUEUE_INTER = setInterval(() => this.RCON_INTER_FUNCTION(CLI), CLI.conf.intervalSpeed);
-                    this.RCONCommandHandler(socket, `Help`).then(res => {
+                    if (this.VALID_CMDS.length == 0) this.RCONCommandHandler(socket, `Help`).then(res => {
                         res = JSON.parse(res)
                         let mds = res.Help.split(", ").map(c => c.split(" ")[0])
                         this.VALID_CMDS = mds;
@@ -155,6 +177,15 @@ class RCON extends Discord.Client {
                                     let dt = JSON.parse(r + "]}")
                                     this.VALID_ITEMS = dt.ItemList
                                 }
+                            }
+                        })
+                    }
+                    if (!this.MAP_LIST || this.MAP_LIST.length == 0) {
+                        await this.wait(1000)
+                        client.RCONCommandHandler(socket, `MapList`).then(res => {
+                            let r = JSON.parse(res)
+                            if (r && r.MapList) {
+                                this.MAP_LIST = r.MapList
                             }
                         })
                     }

@@ -26,7 +26,7 @@ exports.run = async (client, options, socket, message) => {
 // conf (config) for the command
 exports.conf = {
     enabled: true, // Enable the command on startup
-    permLevel: 1,  // Minimum permission level required to use the command
+    permLevel: 2,  // Minimum permission level required to use the command
     reqRoles: [""""] // Optional roles required to use this command
 };
 

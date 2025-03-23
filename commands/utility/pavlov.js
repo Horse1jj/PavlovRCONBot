@@ -1,18 +1,24 @@
-const {MessageEmbed} = require('discord.js')
+const { EmbedBuilder } = require('discord.js');
+
 exports.run = async (client, message, args) => {
   let soc = client._socket;
   if (soc && soc.readyState) {
-    if (soc.readyState == "open" || soc.readyState == "readOnly" || soc.readyState == "writeOnly") {
+    if (['open', 'readOnly', 'writeOnly'].includes(soc.readyState)) {
       client.RCONCommandHandler(soc, `ServerInfo`, [], message.author).then((res) => {
-        res = JSON.parse(res).ServerInfo
-        message.reply(`The server (\`${res.ServerName}\`) is currently on **${res.MapLabel.split("_")[2]}**, and **${res.PlayerCount.split("/")[0]}** players are currently playing. The servers gamemode is **${res.GameMode}**, with the round state **${res.RoundState}**.`)
+        res = JSON.parse(res).ServerInfo;
+        const embed = new EmbedBuilder()
+          .setTitle(`Server Info: ${res.ServerName}`)
+          .setDescription(`The server is currently on **${res.MapLabel.split("_")[2]}**, and **${res.PlayerCount.split("/")[0]}** players are currently playing. The server's gamemode is **${res.GameMode}**, with the round state **${res.RoundState}**.`)
+          .setColor(0x0099ff);
+
+        message.reply({ embeds: [embed] });
       }).catch((res) => {
-        console.log(res)
-        message.reply("Couldn't fetch server data, if this persists let Darko know!")
-      })
+        console.log(res);
+        message.reply("Couldn't fetch server data, if this persists let Darko know!");
+      });
     }
   } else {
-    message.reply("Couldn't fetch server data!")
+    message.reply("Couldn't fetch server data!");
   }
 };
 
@@ -32,3 +38,4 @@ exports.help = {
   description: 'Shows stats from the Pavlov server.',
   usage: 'pavlov'
 };
+

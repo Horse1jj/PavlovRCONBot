@@ -1,31 +1,34 @@
-const { MessageEmbed } = require('discord.js')
+const { EmbedBuilder } = require('discord.js');
+
 exports.run = async (client, opt, soc, msg) => {
     let args = msg.content.split(" ");
     function send() {
-        let embed = new MessageEmbed()
+        let embed = new EmbedBuilder()
             .setTitle("RCON Custom Commands")
-            .setColor('RANDOM')
+            .setColor(0x0099ff)
             .setDescription(`${client.commands.map(c => `\`${c.help.name}\``).join(", ")}`)
-            .setFooter("These runs without a prefix, in the RCON channel(s)!")
-        msg.channel.send({ embeds: [embed] })
+            .setFooter({ text: "These run without a prefix, in the RCON channel(s)!" });
+        msg.channel.send({ embeds: [embed] });
     }
     if (args[1]) {
-        let cmd = client.commands.filter(c => c.help.name == args[1] || c.help.view == args[1])[0]
-        if (!cmd) return send()
-        let embed = new MessageEmbed()
+        let cmd = client.commands.find(c => c.help.name === args[1] || c.help.view === args[1]);
+        if (!cmd) return send();
+        let embed = new EmbedBuilder()
             .setTitle(`RCON Custom - ${cmd.help.name}`)
-            .setColor('RANDOM')
+            .setColor(0x0099ff)
             .setDescription(cmd.help.desc)
-            .setFooter("This runs without a prefix, in the RCON channel(s)!")
-            Object.entries(cmd.help).forEach(([key, value]) => {
-            	key = JSON.stringify(key).replace(/"/g, "")
-                if (key != "desc") embed.addField(key, `${typeof value == 'string' ? value : JSON.stringify(value)}`, true)
-            })
-            msg.reply({embeds: [embed]})
+            .setFooter({ text: "This runs without a prefix, in the RCON channel(s)!" });
+        
+        Object.entries(cmd.help).forEach(([key, value]) => {
+            key = key.replace(/"/g, "");
+            if (key !== "desc") embed.addFields({ name: key, value: typeof value === 'string' ? value : JSON.stringify(value), inline: true });
+        });
+        
+        msg.reply({ embeds: [embed] });
     } else {
-    	send()
+        send();
     }
-}
+};
 
 exports.conf = {
     enabled: true,
